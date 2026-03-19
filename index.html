@@ -1,1 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>of a story left untold</title>
+    <style>
+        :root {
+            --bg-color: #fcfcfc;
+            --text-color: #333;
+            --accent-color: #999;
+            --box-bg: #fff;
+            --font-main: 'Georgia', serif;
+        }
 
+        /* --- Global & Security --- */
+        * { box-sizing: border-box; }
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; opacity: 0.22; pointer-events: none;
+        }
+
+        /* --- Navigation --- */
+        .navbar { position: fixed; top: 30px; right: 30px; z-index: 100; }
+        .nav-right a {
+            margin-left: 20px; text-decoration: none;
+            color: var(--accent-color); font-size: 0.7rem;
+            text-transform: lowercase; letter-spacing: 1px; transition: 0.3s;
+            cursor: pointer;
+        }
+        .nav-right a:hover { color: var(--text-color); }
+
+        /* --- Header Section --- */
+        header { margin-top: 100px; max-width: 900px; padding: 0 20px; }
+        .fade-in-h1 {
+            font-weight: normal; font-style: italic;
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            opacity: 0; animation: fadeIn 4s forwards;
+            margin-bottom: 5px;
+        }
+        #typewriter-sub { 
+            font-size: 0.9rem; color: #777; min-height: 2.8em; 
+            margin-bottom: 30px; margin-top: 0; font-style: italic; line-height: 1.6; 
+            white-space: pre-line;
+        }
+
+        .filter-nav { display: flex; gap: 10px; flex-wrap: wrap; }
+        .filter-btn {
+            background: none; border: 1px solid #eee; padding: 5px 15px;
+            border-radius: 20px; font-family: inherit; font-size: 0.7rem;
+            color: #888; cursor: pointer; text-transform: lowercase; transition: 0.3s;
+        }
+        .filter-btn.active { color: #333; border-color: #888; }
+
+        /* --- The Grid with Bottom Fade --- */
+        #post-container {
+            margin: 60px auto; max-width: 1100px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1px; background-color: #f0f0f0; border: 1px solid #f0f0f0;
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        }
+        .post-box {
+            background: var(--box-bg); padding: 40px 30px; cursor: pointer;
+            transition: 0.4s; display: flex; flex-direction: column;
+            justify-content: space-between; min-height: 300px;
+        }
+        .post-box:hover { background: #fafafa; transform: translateY(-3px); }
+        .post-box.hidden { display: none; }
+
+        .post-meta { font-size: 0.65rem; color: #bbb; text-transform: uppercase; letter-spacing: 2px; }
+        .post-title { font-size: 1.4rem; margin: 15px 0; font-weight: normal; }
+        .post-preview { font-size: 0.85rem; color: #777; font-style: italic; line-height: 1.6; }
+        .post-bottom { display: flex; justify-content: space-between; font-size: 0.65rem; color: #ddd; text-transform: uppercase; }
+
+        /* --- Immersive Reader Modal --- */
+        #reader-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(252, 252, 252, 0.99); display: none; z-index: 2000; overflow-y: auto;
+        }
+        .reader-inner { max-width: 700px; margin: 100px auto; padding: 40px; width: 90%; }
+        .reader-title { font-size: 2.5rem; margin-bottom: 30px; font-weight: normal; font-style: italic; }
+        #reader-text { font-size: 1.2rem; line-height: 2; color: #444; white-space: pre-wrap; word-wrap: break-word; margin-bottom: 50px; }
+
+        .close-btn { position: fixed; top: 40px; right: 40px; cursor: pointer; font-size: 0.75rem; color: #999; }
+
+        /* --- Aesthetic Request Section --- */
+        section { max-width: 800px; margin: 150px auto 0; padding: 80px 20px; border-top: 1px solid #eee; }
+        h2 { font-weight: normal; font-style: italic; color: #aaa; font-size: 1.2rem; margin-bottom: 20px; }
+        
+        .request-container { position: relative; margin-top: 40px; }
+        #requests textarea { 
+            width: 100%; height: 100px; border: none; border-bottom: 1px solid #eee; 
+            padding: 15px 0; font-family: inherit; font-size: 1.1rem; resize: none; 
+            outline: none; background: transparent; transition: 0.5s; font-style: italic;
+            color: #555;
+        }
+        #requests textarea:focus { border-bottom-color: #333; }
+        #requests textarea::placeholder { color: #ccc; font-style: italic; opacity: 0.6; }
+        
+        .btn-minimal {
+            background: none; border: 1px solid #eee; padding: 8px 25px;
+            border-radius: 20px; font-family: inherit; font-size: 0.7rem;
+            color: #888; cursor: pointer; text-transform: lowercase; transition: 0.3s;
+            margin-top: 20px;
+        }
+        .btn-minimal:hover { color: #333; border-color: #888; }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="navbar">
+      <div class="nav-right">
+        <a onclick="window.scrollTo(0,0)" onmouseenter="playTick()">home</a>
+        <a href="#about" onmouseenter="playTick()">about</a>
+        <a onclick="openLatest()" onmouseenter="playTick()">latest</a>
+        <a href="#requests" onmouseenter="playTick()">requests</a>
+      </div>
+    </nav>
+
+    <header id="top">
+        <h1 class="fade-in-h1">of a story left untold</h1>
+        <div id="typewriter-sub"></div>
+        <div class="filter-nav">
+            <button class="filter-btn active" onclick="filter('all', this)">all</button>
+            <button class="filter-btn" onclick="filter('poem', this)">poem</button>
+            <button class="filter-btn" onclick="filter('prose', this)">prose</button>
+            <button class="filter-btn" onclick="filter('letters', this)">letters</button>
+            <button class="filter-btn" onclick="filter('lyric essay', this)">lyric essay</button>
+        </div>
+    </header>
+
+    <main id="post-container">
+        <article class="post-box" data-category="prose" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">prose</div>
+                <div class="post-title">the architecture of silence</div>
+                <div class="post-preview">every room we shared has since been redesigned...</div>
+            </div>
+            <div class="post-bottom"><span>archive #01</span><span>open</span></div>
+            <div class="full-text" style="display:none;">Every room we shared has since been redesigned. The walls are a different color, the furniture has been replaced, yet the silence still has the exact same shape as your departure.</div>
+        </article>
+
+        <article class="post-box" data-category="poem" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">poem</div>
+                <div class="post-title">saltwater lungs</div>
+                <div class="post-preview">i tried to breathe the ocean because you said you loved the blue...</div>
+            </div>
+            <div class="post-bottom"><span>archive #02</span><span>open</span></div>
+            <div class="full-text" style="display:none;">i tried to breathe the ocean\nbecause you said you loved the blue.\nnow i have saltwater lungs\nand a heart that beats for two.</div>
+        </article>
+
+        <article class="post-box" data-category="letters" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">letters</div>
+                <div class="post-title">unsent on a tuesday</div>
+                <div class="post-preview">i saw someone who looked like you today at the station...</div>
+            </div>
+            <div class="post-bottom"><span>archive #03</span><span>open</span></div>
+            <div class="full-text" style="display:none;">I saw someone who looked like you today at the station. For a split second, the last three years didn't exist. Then they turned around, and the world was heavy again.</div>
+        </article>
+
+        <article class="post-box" data-category="lyric essay" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">lyric essay</div>
+                <div class="post-title">the geometry of moving on</div>
+                <div class="post-preview">we talk about circles but grief is a series of sharp angles...</div>
+            </div>
+            <div class="post-bottom"><span>archive #04</span><span>open</span></div>
+            <div class="full-text" style="display:none;">We talk about circles, but grief is a series of sharp angles. You collide with the corners of old memories until you learn how to walk around them.</div>
+        </article>
+
+        <article class="post-box" data-category="prose" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">prose</div>
+                <div class="post-title">digital ghosts</div>
+                <div class="post-preview">your name still appears in my predictive text...</div>
+            </div>
+            <div class="post-bottom"><span>archive #05</span><span>open</span></div>
+            <div class="full-text" style="display:none;">Your name still appears in my predictive text. Even my phone hasn't learned that we don't speak anymore. It suggests you at the end of every "I miss..."</div>
+        </article>
+
+        <article class="post-box" data-category="poem" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">poem</div>
+                <div class="post-title">left untold</div>
+                <div class="post-preview">the heaviest things we carry are the words we never spoke...</div>
+            </div>
+            <div class="post-bottom"><span>archive #06</span><span>open</span></div>
+            <div class="full-text" style="display:none;">The heaviest things we carry are the words we never spoke. They gather dust in the corners of the throat, waiting for a permission that will never come.</div>
+        </article>
+
+        <article class="post-box" data-category="letters" onclick="openReader(this)" onmouseenter="playRustle()">
+            <div class="top">
+                <div class="post-meta">letters</div>
+                <div class="post-title">a letter to 2019</div>
+                <div class="post-preview">if i could reach back through the screen, i would tell you to stay...</div>
+            </div>
+            <div class="post-bottom"><span>archive #07</span><span>open</span></div>
+            <div class="full-text" style="display:none;">If i could reach back through the screen, i would tell you to stay inside that day. I would tell you that the rain isn't romantic, it's just cold. But you wouldn't listen. You never did.</div>
+        </article>
+    </main>
+
+    <section id="about">
+        <h2>about the archive</h2>
+        <p>this is a private archive of public damage. a collection of literary pieces meant to be felt rather than just read. fragments of a home that no longer exists.</p>
+    </section>
+
+    <section id="requests">
+      <h2>requests</h2>
+      <p>send a prompt, a feeling, or a fragment.</p>
+      <div class="request-container">
+          <textarea placeholder="type something here..."></textarea>
+      </div>
+      <button type="button" class="btn-minimal" onmouseenter="playTick()">send message</button>
+    </section>
+
+    <div id="reader-modal">
+        <span class="close-btn" onclick="closeReader()">[ back ]</span>
+        <div class="reader-inner">
+            <div class="reader-title" id="modal-title"></div>
+            <div id="reader-text"></div>
+            <div style="border-top: 1px solid #eee; padding-top: 30px;">
+                <button class="btn-minimal" onclick="sharePiece()" onmouseenter="playTick()">share</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Sound Assets ---
+        const rustle = new Audio('https://www.soundjay.com');
+        const tick = new Audio('https://www.soundjay.com');
+        rustle.volume = 0.5;
+        tick.volume = 0.2;
+
+        function playRustle() { rustle.currentTime = 0; rustle.play().catch(()=>{}); }
+        function playTick() { tick.currentTime = 0; tick.play().catch(()=>{}); }
+
+        // --- 2. UI Logic ---
+        const line1 = "a quiet collection of feelings that never found a home,";
+        const line2 = "fragments that linger long after everything else has gone.";
+        const sub = line1 + "\n" + line2;
+        
+        let j=0; function type() { 
+            if(j<sub.length){ 
+                document.getElementById("typewriter-sub").innerHTML+=sub.charAt(j++); 
+                setTimeout(type, 70); 
+            } 
+        }
+
+        let revealTimer;
+        function typeReveal(text) {
+            const el = document.getElementById('reader-text');
+            el.innerText = "";
+            let i = 0; clearInterval(revealTimer);
+            revealTimer = setInterval(() => {
+                if (i < text.length) el.innerText += text.charAt(i++);
+                else clearInterval(revealTimer);
+            }, 40);
+        }
+
+        function filter(cat, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.post-box').forEach(p => {
+                p.style.display = (cat === 'all' || p.dataset.category === cat) ? 'flex' : 'none';
+            });
+        }
+
+        function openReader(el) {
+            document.getElementById('modal-title').innerText = el.querySelector('.post-title').innerText;
+            document.getElementById('reader-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            typeReveal(el.querySelector('.full-text').innerText.replace(/\\n/g, '\n'));
+        }
+
+        function openLatest() {
+            const first = document.querySelector('.post-box:not(.hidden)');
+            if(first) openReader(first);
+        }
+
+        function closeReader() {
+            clearInterval(revealTimer);
+            document.getElementById('reader-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function sharePiece() {
+            if (navigator.share) navigator.share({ title: document.getElementById('modal-title').innerText, url: window.location.href });
+            else alert("Link copied.");
+        }
+
+        // --- 3. Security ---
+        document.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
+
+        // --- 4. Background: Hand-Drawn Sweeping Waves ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let strands = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            strands = [];
+            for(let i=0; i<4; i++) strands.push(new DrawingWave());
+            animate();
+        }
+
+        class DrawingWave {
+            constructor() { this.reset(); }
+            reset() {
+                this.yBase = Math.random() * canvas.height;
+                this.progress = 0;
+                this.drawSpeed = 0.0006 + Math.random() * 0.0008; 
+                this.amplitude = 140 + Math.random() * 150;
+                this.frequency = 0.0004;
+                this.life = 1;
+                this.state = "drawing";
+                this.thickness = 1.3 + Math.random() * 0.5;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.strokeStyle = '#999';
+                ctx.lineWidth = this.thickness;
+                ctx.lineCap = 'round';
+
+                if (this.state === "drawing") {
+                    this.progress += this.drawSpeed;
+                    if (this.progress >= 1) this.state = "retracting";
+                } else {
+                    this.life -= 0.003; 
+                }
+
+                ctx.globalAlpha = Math.max(0, this.life);
+
+                let lastX = -100;
+                let lastY = this.yBase + Math.sin(lastX * this.frequency) * this.amplitude;
+                ctx.moveTo(lastX, lastY);
+
+                const currentXLimit = canvas.width * this.progress + 100;
+                for (let x = -50; x < currentXLimit; x += 60) {
+                    let y = this.yBase + Math.sin(x * this.frequency) * this.amplitude;
+                    let xc = (x + lastX) / 2;
+                    let yc = (y + lastY) / 2;
+                    ctx.quadraticCurveTo(lastX, lastY, xc, yc);
+                    lastX = x; lastY = y;
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                if (this.life <= 0) this.reset();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            strands.forEach(s => s.draw());
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = () => { type(); initCanvas(); };
+        window.onresize = initCanvas;
+    </script>
+</body>
+</html>
