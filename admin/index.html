@@ -1,92 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OSLU | Private Owner Dashboard</title>
-    
-    </script>
+    <meta charset="UTF-8">
+    <title>of a story left untold | admin</title>
     <style>
-        body { font-family: 'Georgia', serif; background: #fcfcfc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; color: #333; }
-        .lock-screen { text-align: center; border: 1px solid #eee; padding: 40px; background: white; max-width: 400px; width: 90%; }
-        #admin-tools { display: none; width: 90%; max-width: 600px; background: white; padding: 40px; border: 1px solid #eee; margin: 20px auto; }
-        h1 { font-weight: normal; font-style: italic; font-size: 1.5rem; margin-bottom: 30px; color: #999; }
+        body { font-family: 'Georgia', serif; background: #fcfcfc; display: flex; justify-content: center; padding: 40px; color: #333; }
+        .admin-card { background: white; padding: 40px; border: 1px solid #eee; max-width: 500px; width: 100%; }
+        h1 { font-weight: normal; font-style: italic; font-size: 1.2rem; color: #999; margin-bottom: 30px; }
         label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #bbb; margin-top: 20px; }
-        input, select, textarea { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #eee; font-family: inherit; outline: none; transition: 0.3s; background: transparent; }
-        input:focus, textarea:focus { border-bottom-color: #333; }
-        textarea { height: 100px; resize: vertical; }
-        .gen-btn { margin-top: 40px; width: 100%; background: none; border: 1px solid #eee; padding: 12px; font-family: inherit; font-size: 0.7rem; color: #888; cursor: pointer; text-transform: lowercase; transition: 0.3s; }
-        .gen-btn:hover { border-color: #333; color: #333; }
-        #output-area { margin-top: 30px; display: none; }
-        #final-code { width: 100%; height: 120px; font-size: 0.7rem; font-family: monospace; background: #f9f9f9; padding: 10px; border: 1px solid #eee; margin-top: 10px; }
-        .copy-msg { font-size: 0.7rem; color: #27ae60; margin-top: 10px; font-style: italic; }
-        .logout-link { display: block; margin-top: 30px; font-size: 0.6rem; color: #ccc; cursor: pointer; text-decoration: underline; text-align: right; }
+        input, select, textarea { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #eee; font-family: inherit; outline: none; background: transparent; }
+        .btn { margin-top: 30px; width: 100%; background: none; border: 1px solid #eee; padding: 12px; font-family: inherit; font-size: 0.7rem; color: #888; cursor: pointer; text-transform: lowercase; }
+        #admin-content { display: none; }
+        #login-screen { text-align: center; margin-top: 100px; }
     </style>
 </head>
 <body>
 
-    <!-- Restricted Entry Screen -->
-    <div class="lock-screen" id="admin-gate">
-        <p>of a story left untold</p>
-        <p style="font-size: 0.7rem; color: #ccc; margin-bottom: 20px;">owner access only</p>
-        Login to Dashboard</button>
+    <!-- THE LOGIN SCREEN -->
+    <div id="login-screen">
+        <h1>enter the secret code</h1>
+        <input type="password" id="pass-input" placeholder="password...">
+        <button class="btn" onclick="checkPass()">enter</button>
     </div>
 
-    <!-- Private Admin Panel -->
-    <div id="admin-tools">
+    <!-- THE ACTUAL TOOLS (HIDDEN) -->
+    <div id="admin-content" class="admin-card">
         <h1>add to archive</h1>
-        
         <label>category</label>
-        <select id="cat">
-            <option value="poem">poem</option>
-            <option value="prose">prose</option>
-            <option value="letters">letters</option>
-            <option value="lyric essay">lyric essay</option>
-        </select>
-
+        <select id="cat"><option>poem</option><option>prose</option><option>letters</option><option>lyric essay</option></select>
+        
         <label>archive number</label>
         <input type="text" id="arch" placeholder="#03">
-
+        
         <label>title</label>
-        <input type="text" id="title" placeholder="the architecture of silence">
-
-        <label>grid preview (short snippet)</label>
-        <input type="text" id="preview" placeholder="every room we shared...">
-
+        <input type="text" id="title">
+        
+        <label>preview snippet</label>
+        <input type="text" id="preview">
+        
         <label>full text</label>
-        <textarea id="content" placeholder="write the full story here..."></textarea>
+        <textarea id="content"></textarea>
 
-        <button class="gen-btn" onclick="generateStory()">Generate & Copy HTML</button>
-
-        <div id="output-area">
-            <label>copy this code:</label>
-            <textarea id="final-code" readonly></textarea>
-            <p class="copy-msg">Copied! Now paste this into your index.html file on GitHub.</p>
+        <button class="btn" onclick="generateStory()">generate & copy code</button>
+        
+        <div id="output" style="display:none; margin-top: 20px;">
+            <label>copy this into your index.html:</label>
+            <textarea id="final-code" style="height: 100px;" readonly></textarea>
         </div>
-
-        logout</span>
     </div>
 
     <script>
-        // Identity Authentication Logic
-        netlifyIdentity.on('init', user => {
-            if (user) { showAdmin(); }
-        });
-        netlifyIdentity.on('login', user => {
-            showAdmin();
-            netlifyIdentity.close();
-        });
-        netlifyIdentity.on('logout', () => {
-            window.location.reload();
-        });
-
-        function showAdmin() {
-            document.getElementById('admin-gate').style.display = 'none';
-            document.getElementById('admin-tools').style.display = 'block';
-            document.body.style.alignItems = 'flex-start';
+        function checkPass() {
+            const pass = document.getElementById('pass-input').value;
+            // CHANGE 'your-password-here' TO YOUR ACTUAL SECRET WORD
+            if (pass === 'loveletterfromtheseatotheshore') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+            } else {
+                alert('Wrong code.');
+            }
         }
 
-        // Story Code Generator
         function generateStory() {
             const cat = document.getElementById('cat').value;
             const arch = document.getElementById('arch').value;
@@ -105,12 +79,11 @@
                 <div class="full-text" style="display:none;">${content}</div>
             </article>`;
 
-            const outputField = document.getElementById('final-code');
-            outputField.value = htmlSnippet.trim();
-            document.getElementById('output-area').style.display = 'block';
-            
-            outputField.select();
+            document.getElementById('final-code').value = htmlSnippet.trim();
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('final-code').select();
             document.execCommand('copy');
+            alert('Code copied! Now go to GitHub and paste it.');
         }
     </script>
 </body>
