@@ -1,47 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>OSLU | Private Admin</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OSLU | Private Owner Dashboard</title>
     
     </script>
     <style>
-        body { font-family: 'Georgia', serif; background: #fcfcfc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #999; }
-        .lock-screen { text-align: center; border: 1px solid #eee; padding: 40px; background: white; }
+        body { font-family: 'Georgia', serif; background: #fcfcfc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; color: #333; }
+        .lock-screen { text-align: center; border: 1px solid #eee; padding: 40px; background: white; max-width: 400px; width: 90%; }
+        #admin-tools { display: none; width: 90%; max-width: 600px; background: white; padding: 40px; border: 1px solid #eee; margin: 20px auto; }
+        h1 { font-weight: normal; font-style: italic; font-size: 1.5rem; margin-bottom: 30px; color: #999; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #bbb; margin-top: 20px; }
+        input, select, textarea { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #eee; font-family: inherit; outline: none; transition: 0.3s; background: transparent; }
+        input:focus, textarea:focus { border-bottom-color: #333; }
+        textarea { height: 100px; resize: vertical; }
+        .gen-btn { margin-top: 40px; width: 100%; background: none; border: 1px solid #eee; padding: 12px; font-family: inherit; font-size: 0.7rem; color: #888; cursor: pointer; text-transform: lowercase; transition: 0.3s; }
+        .gen-btn:hover { border-color: #333; color: #333; }
+        #output-area { margin-top: 30px; display: none; }
+        #final-code { width: 100%; height: 120px; font-size: 0.7rem; font-family: monospace; background: #f9f9f9; padding: 10px; border: 1px solid #eee; margin-top: 10px; }
+        .copy-msg { font-size: 0.7rem; color: #27ae60; margin-top: 10px; font-style: italic; }
+        .logout-link { display: block; margin-top: 30px; font-size: 0.6rem; color: #ccc; cursor: pointer; text-decoration: underline; text-align: right; }
     </style>
 </head>
 <body>
 
+    <!-- Restricted Entry Screen -->
     <div class="lock-screen" id="admin-gate">
-        <p>This area is restricted.</p>
-        Login as Owner</button>
+        <p>of a story left untold</p>
+        <p style="font-size: 0.7rem; color: #ccc; margin-bottom: 20px;">owner access only</p>
+        Login to Dashboard</button>
     </div>
 
-    <!-- The Actual Admin Content (Hidden until login) -->
-    <div id="admin-tools" style="display:none; padding: 50px;">
-        <h1>Owner Dashboard</h1>
-        <!-- Paste your previous Story Generator Code here -->
+    <!-- Private Admin Panel -->
+    <div id="admin-tools">
+        <h1>add to archive</h1>
+        
+        <label>category</label>
+        <select id="cat">
+            <option value="poem">poem</option>
+            <option value="prose">prose</option>
+            <option value="letters">letters</option>
+            <option value="lyric essay">lyric essay</option>
+        </select>
+
+        <label>archive number</label>
+        <input type="text" id="arch" placeholder="#03">
+
+        <label>title</label>
+        <input type="text" id="title" placeholder="the architecture of silence">
+
+        <label>grid preview (short snippet)</label>
+        <input type="text" id="preview" placeholder="every room we shared...">
+
+        <label>full text</label>
+        <textarea id="content" placeholder="write the full story here..."></textarea>
+
+        <button class="gen-btn" onclick="generateStory()">Generate & Copy HTML</button>
+
+        <div id="output-area">
+            <label>copy this code:</label>
+            <textarea id="final-code" readonly></textarea>
+            <p class="copy-msg">Copied! Now paste this into your index.html file on GitHub.</p>
+        </div>
+
+        logout</span>
     </div>
 
     <script>
-        // Check if user is already logged in
+        // Identity Authentication Logic
         netlifyIdentity.on('init', user => {
-            if (user) {
-                showAdmin();
-            } else {
-                netlifyIdentity.open(); // Auto-open login if not logged in
-            }
+            if (user) { showAdmin(); }
         });
-
-        // After successful login
         netlifyIdentity.on('login', user => {
             showAdmin();
             netlifyIdentity.close();
+        });
+        netlifyIdentity.on('logout', () => {
+            window.location.reload();
         });
 
         function showAdmin() {
             document.getElementById('admin-gate').style.display = 'none';
             document.getElementById('admin-tools').style.display = 'block';
+            document.body.style.alignItems = 'flex-start';
+        }
+
+        // Story Code Generator
+        function generateStory() {
+            const cat = document.getElementById('cat').value;
+            const arch = document.getElementById('arch').value;
+            const title = document.getElementById('title').value;
+            const preview = document.getElementById('preview').value;
+            const content = document.getElementById('content').value;
+
+            const htmlSnippet = `
+            <article class="post-box" data-category="${cat}" onclick="openReader(this)" onmouseenter="playRustle()">
+                <div class="top">
+                    <div class="post-meta">${cat}</div>
+                    <div class="post-title">${title}</div>
+                    <div class="post-preview">${preview}</div>
+                </div>
+                <div class="post-bottom"><span>archive ${arch}</span><span>open</span></div>
+                <div class="full-text" style="display:none;">${content}</div>
+            </article>`;
+
+            const outputField = document.getElementById('final-code');
+            outputField.value = htmlSnippet.trim();
+            document.getElementById('output-area').style.display = 'block';
+            
+            outputField.select();
+            document.execCommand('copy');
         }
     </script>
 </body>
