@@ -127,7 +127,8 @@
     <nav class="navbar">
       <div class="nav-right">
         <a onclick="window.scrollTo(0,0)" onmouseenter="playTick()">home</a>
-        <a href="#about" onmouseenter="playTick()">about</a>
+        <a onclick="document.getElementById('about').scrollIntoView()" onmouseenter="playTick()">about</a>
+
         <a onclick="openLatest()" onmouseenter="playTick()">latest</a>
         <a href="#requests" onmouseenter="playTick()">requests</a>
       </div>
