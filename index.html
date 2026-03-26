@@ -226,13 +226,20 @@
     </section>
 
     <section id="contact">
-      <h2>contact</h2>
-      <p>if you found a piece of yourself in the mess, say hello. a word, a prompt, or a thought.</p>
-      <div class="request-container">
-          <textarea placeholder="type something here..."></textarea>
-      </div>
-      <button type="button" class="btn-minimal" onmouseenter="playTick()">send message</button>
-    </section>
+  <h2>contact</h2>
+  <p>if you found a piece of yourself in the mess, say hello. a word, a prompt, or a thought.</p>
+  
+  <!-- We added the 'form' tag here to catch the data -->
+  <form name="contact" method="POST" data-netlify="true">
+    <div class="request-container">
+        <!-- We added 'name="message"' so Netlify knows what this text is -->
+        <textarea name="message" placeholder="type something here..." required></textarea>
+    </div>
+    <!-- Changed type to 'submit' so it actually sends the form -->
+    <button type="submit" class="btn-minimal" onmouseenter="playTick()">send message</button>
+  </form>
+</section>
+
 
     <div id="reader-modal">
         <span class="close-btn" onclick="closeReader()">[ back ]</span>
