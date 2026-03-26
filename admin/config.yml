@@ -1,19 +1,15 @@
 backend:
   name: git-gateway
-  branch: main # Make sure this matches your GitHub branch name (usually 'main')
+  branch: main # Change to 'master' if your GitHub uses that instead
 
-media_folder: "images" # Where images will go if you upload them
+media_folder: "images"
 public_folder: "/images"
 
 collections:
-  - name: "blog"
-    label: "Stories"
-    folder: "_posts" # Your stories will be saved as files in this folder
+  - name: "archive"
+    label: "Archive"
+    folder: "archive" # This is just a placeholder for the CMS structure
     create: true
-    slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Category", name: "category", widget: "select", options: ["poem", "prose", "letters", "lyric essay"] }
-      - { label: "Preview Text", name: "preview", widget: "text" }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Body", name: "body", widget: "markdown"}
