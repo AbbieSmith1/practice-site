@@ -100,14 +100,14 @@
         h2 { font-weight: normal; font-style: italic; color: #aaa; font-size: 1.2rem; margin-bottom: 20px; }
         
         .request-container { position: relative; margin-top: 40px; }
-        #requests textarea { 
+        #contact textarea { 
             width: 100%; height: 100px; border: none; border-bottom: 1px solid #eee; 
             padding: 15px 0; font-family: inherit; font-size: 1.1rem; resize: none; 
             outline: none; background: transparent; transition: 0.5s; font-style: italic;
             color: #555;
         }
-        #requests textarea:focus { border-bottom-color: #333; }
-        #requests textarea::placeholder { color: #ccc; font-style: italic; opacity: 0.6; }
+        #contact textarea:focus { border-bottom-color: #333; }
+        #contact textarea::placeholder { color: #ccc; font-style: italic; opacity: 0.6; }
         
         .btn-minimal {
             background: none; border: 1px solid #eee; padding: 8px 25px;
@@ -130,7 +130,7 @@
         <a onclick="document.getElementById('about').scrollIntoView()" onmouseenter="playTick()">about</a>
 
         <a onclick="openLatest()" onmouseenter="playTick()">latest</a>
-        <a onclick="document.getElementById('requests').scrollIntoView()" onmouseenter="playTick()">requests</a>
+        <a onclick="document.getElementById('contact').scrollIntoView()" onmouseenter="playTick()">contact</a>
     </nav>
 
     <header id="top">
@@ -225,9 +225,9 @@
         <p>if you find these fragments unpolished or confusing, it is because they are. they are the raw spills of a world i'm still learning to put into sentences. if you've found your way here, you are a guest in a room i usually keep locked. stay as long as you need. maybe something here belongs to you, too.</p>
     </section>
 
-    <section id="requests">
-      <h2>requests</h2>
-      <p>send a prompt, a feeling, or a fragment.</p>
+    <section id="contact">
+      <h2>contact</h2>
+      <p>if you found a piece of yourself in the mess, say hello. a word, a prompt, or a thought.</p>
       <div class="request-container">
           <textarea placeholder="type something here..."></textarea>
       </div>
